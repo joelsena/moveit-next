@@ -1,0 +1,20 @@
+.container {
+    /* Ocupa totalmente a altura da tela */
+    height: 100vh;
+    max-width: 992px;
+    margin: 0 auto;
+    padding: 2.5rem 2rem;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.container section {
+    flex: 1;
+
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 50/50 */
+    gap: 6.25rem; /* 6.25 X 16 = 100px */
+    /* Faz com que todo conteúdo do grid fique centralizado no centro verticalmente */
+    align-content: center;
+}
