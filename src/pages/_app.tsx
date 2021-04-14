@@ -1,3 +1,4 @@
+import { ChallengesProvider } from '../contexts/ChallengesContext';
 import '../styles/global.css';
 
 // A primeira página vem pronto do intermediário que é o next.js
@@ -22,7 +23,11 @@ import '../styles/global.css';
 // Tudo que se repete entre as páginas vem para cá
 
 function MyApp({ Component, pageProps }) {
-  return <Component {...pageProps} />
+  return (
+    <ChallengesProvider>
+      <Component {...pageProps} />
+    </ChallengesProvider>
+  );
 }
 
 export default MyApp

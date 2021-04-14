@@ -14,7 +14,7 @@
 
     display: grid;
     grid-template-columns: 1fr 1fr; /* 50/50 */
-    gap: 6.25rem; /* 6.25 X 16 = 100px */
+    gap: 3rem; /* 6.25 X 16 = 100px */
     /* Faz com que todo conteúdo do grid fique centralizado no centro verticalmente */
     align-content: center;
 }
