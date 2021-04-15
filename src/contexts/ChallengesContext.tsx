@@ -1,4 +1,4 @@
-import { createContext, useState, ReactNode, useContext } from 'react';
+import { createContext, useState, ReactNode, useContext, useEffect } from 'react';
 import challenges from '../../challenges.json';
 
 
@@ -19,12 +19,24 @@ interface ChallengesContextData {
     currentExperience: number;
     level: number;
 
+    completeChallenge(): void;
     startNewChallenge(): void;
     resetChallenge(): void;
     levelUp(): void;
 }
 
 export const ChallengesContext = createContext({} as ChallengesContextData);
+
+const notificationSounds = [
+    'aaaaa',
+    'epic-sax',
+    'wake-me-up'
+];
+
+const lvlUpSounds = [
+    'money',
+    'stonks'
+];
 
 export function ChallengesProvider({ children }: ChallengesProviderProps){
     const [level, setLevel] = useState<number>(1);
@@ -35,8 +47,15 @@ export function ChallengesProvider({ children }: ChallengesProviderProps){
 
     const experienceToNextLevel = Math.pow((level + 1) * 4, 2);
 
+    // Requisita permisão para emitir notificações no browser do usuário
+    useEffect(() => {
+        Notification.requestPermission();
+    }, []);
+    
     function levelUp() {
         setLevel(prevLevel => prevLevel + 1);
+        // const sound = Math.floor(Math.random() * lvlUpSounds.length);
+        // new Audio(`sounds/lvlUp/${lvlUpSounds[sound]}.mp3`).play();
     }
 
     function startNewChallenge() {
@@ -47,9 +66,50 @@ export function ChallengesProvider({ children }: ChallengesProviderProps){
         const challenge = challenges[randomChallengeIndex];
 
         setActiveChallenge(challenge);
+
+        // Executar um áudio
+        // Outra API padrão de navegador
+        // Tudo que estiver na pasta 'public' é enxergado diretamente pelos resto da aplicação
+        // Não precisa de nenhum caminho louco
+        const sound = Math.floor(Math.random() * notificationSounds.length);
+        new Audio(`sounds/Notification/${notificationSounds[sound]}.mp3`).play();
+
+        // Possui permissão
+        if(Notification.permission === 'granted'){
+            // Emiti uma nova notificação
+            // Notification é uma API padrão dos navegadores
+            new Notification('Novo desafio 🎉✨', {
+                body: `Valendo ${challenge.amount}xp!`
+            });
+        }
     }
 
     function resetChallenge() {
+        setActiveChallenge(null);
+    }
+
+    function completeChallenge() {
+        if(!activeChallenge) {
+            return;
+        }
+
+        const { amount } = activeChallenge;
+
+        // let it change
+        let finalExperience = currentExperience + amount;
+
+
+        // Verifica se tem xp o suficiente para upar de nível
+        if(finalExperience >= experienceToNextLevel){
+            // retira o excesso de xp se houver
+            // Se forem igual fica 0
+            finalExperience = finalExperience - experienceToNextLevel;
+            // E em seguida incrementar o level
+            levelUp();
+        }
+
+        setCurrentExperience(finalExperience);
+        setChallengesCompleted(prevValue => prevValue + 1);
         setActiveChallenge(null);
     }
 
@@ -57,6 +117,7 @@ export function ChallengesProvider({ children }: ChallengesProviderProps){
         <ChallengesContext.Provider value={{ 
             experienceToNextLevel,
             challengesCompleted,
+            completeChallenge,
             currentExperience, 
             startNewChallenge,
             activeChallenge,
