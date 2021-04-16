@@ -23,7 +23,7 @@ let countdownTimeout: NodeJS.Timeout;
 export function CountdownProvider({ children }: CountdownProviderProps) {
     // Transformar minutos para segundo
     // Multiplica o minuto por 60
-    const [time, setTime] = useState<number>(0.1 * 60);
+    const [time, setTime] = useState<number>(25 * 60);
     const [isActive, setIsActive] = useState<boolean>(false);
     const [hasFinished, setHasFinished] = useState<boolean>(false);
     const { startNewChallenge } = useHook();

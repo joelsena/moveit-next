@@ -1,9 +1,13 @@
 import { createContext, useState, ReactNode, useContext, useEffect } from 'react';
+import Cookies from 'js-cookie';
 import challenges from '../../challenges.json';
-
+import { LevelUpModal } from '../components/LevelUpModal';
 
 interface ChallengesProviderProps {
     children: ReactNode;
+    level: number;
+    currentExperience: number;
+    challengesCompleted: number;
 }
 
 interface ChallengeType {
@@ -19,6 +23,7 @@ interface ChallengesContextData {
     currentExperience: number;
     level: number;
 
+    closeLevelUpModal(): void;
     completeChallenge(): void;
     startNewChallenge(): void;
     resetChallenge(): void;
@@ -38,12 +43,15 @@ const lvlUpSounds = [
     'stonks'
 ];
 
-export function ChallengesProvider({ children }: ChallengesProviderProps){
-    const [level, setLevel] = useState<number>(1);
-    const [currentExperience, setCurrentExperience] = useState<number>(0);
-    const [challengesCompleted, setChallengesCompleted] = useState<number>(0);
-
+// rest =  rest orperator = Resto do objeto
+export function ChallengesProvider({ children, ...rest }: ChallengesProviderProps){
+    // ?? => Retorna uma coisa, se ela não existir retorna outra coisa
+    const [challengesCompleted, setChallengesCompleted] = useState<number>(rest.challengesCompleted ?? 0);
+    const [currentExperience, setCurrentExperience] = useState<number>(rest.currentExperience ?? 0);
     const [activeChallenge, setActiveChallenge] = useState(null);
+    const [isLevelUpModalOpen, setIsLevelUpModalOpen] = useState(false);
+    const [level, setLevel] = useState<number>(rest.level ?? 1);
+
 
     const experienceToNextLevel = Math.pow((level + 1) * 4, 2);
 
@@ -51,11 +59,23 @@ export function ChallengesProvider({ children }: ChallengesProviderProps){
     useEffect(() => {
         Notification.requestPermission();
     }, []);
+
+    useEffect(() => {
+        // API que auxilia na manipulação de cookies
+        Cookies.set('level', String(level));
+        Cookies.set('currentExperience', String(currentExperience));
+        Cookies.set('challengesCompleted', String(challengesCompleted));
+    }, [level, currentExperience, challengesCompleted]);
+
+    function closeLevelUpModal() {
+        setIsLevelUpModalOpen(false);
+    }
     
     function levelUp() {
         setLevel(prevLevel => prevLevel + 1);
         // const sound = Math.floor(Math.random() * lvlUpSounds.length);
         // new Audio(`sounds/lvlUp/${lvlUpSounds[sound]}.mp3`).play();
+        setIsLevelUpModalOpen(true);
     }
 
     function startNewChallenge() {
@@ -117,6 +137,7 @@ export function ChallengesProvider({ children }: ChallengesProviderProps){
         <ChallengesContext.Provider value={{ 
             experienceToNextLevel,
             challengesCompleted,
+            closeLevelUpModal,
             completeChallenge,
             currentExperience, 
             startNewChallenge,
@@ -126,6 +147,7 @@ export function ChallengesProvider({ children }: ChallengesProviderProps){
             level
         }}>
             {children}
+            {isLevelUpModalOpen && <LevelUpModal />}
         </ChallengesContext.Provider>
     );
 }

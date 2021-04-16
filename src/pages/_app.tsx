@@ -23,10 +23,8 @@ import '../styles/global.css';
 // Tudo que se repete entre as páginas vem para cá
 
 function MyApp({ Component, pageProps }) {
-  return (
-    <ChallengesProvider>
-      <Component {...pageProps} />
-    </ChallengesProvider>
+  return (  
+    <Component {...pageProps} />
   );
 }
 
